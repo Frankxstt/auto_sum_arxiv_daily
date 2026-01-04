@@ -1,14 +1,52 @@
 # AI新闻自动汇总系统
 
+## 📑 目录导航
+
+### 快速开始
+- [项目介绍](#项目介绍)
+- [功能特性](#功能特性)
+- [安装和配置](#安装和配置)
+  - [环境要求](#1-环境要求)
+  - [安装依赖](#2-安装依赖)
+  - [配置文件](#3-配置文件)
+  - [部署到GitHub](#4-部署到github)
+  - [GitHub Actions配置](#5-github-actions配置用于定时任务)
+- [使用方法](#使用方法)
+  - [本地运行](#本地运行)
+  - [定时任务](#定时任务github-actions)
+
+### 详细文档
+- [新闻来源](#新闻来源)
+- [分类规则](#分类规则)
+  - [按主题分类](#按主题分类)
+  - [按重要性分类](#按重要性分类)
+  - [按来源分类](#按来源分类)
+- [项目结构](#项目结构)
+
+### 配置指南
+- 📘 [GitHub部署指南](GITHUB_DEPLOYMENT.md) - 如何将代码推送到GitHub
+- 📗 [GitHub Actions配置指南](GITHUB_ACTIONS_SETUP.md) - 详细的Actions配置步骤
+- 📙 [配置更新指南](GITHUB_CONFIG_UPDATE.md) - 翻译功能和中文RSS源配置
+- 📕 [RSS源推荐列表](RSS_SOURCES.md) - 推荐的RSS订阅源
+- 📋 [配置检查清单](CONFIG_CHECKLIST.md) - 配置验证清单
+
+### 其他
+- [注意事项](#注意事项)
+- [扩展功能](#扩展功能)
+- [许可证](#许可证)
+
+---
+
 ## 项目介绍
 
 这是一个自动化系统，每天从多个来源获取AI相关的新闻，对其进行分类和总结，并通过邮件发送给用户。系统使用Python实现，通过GitHub Actions实现定时任务。
 
 ## 功能特性
 
-- **多源新闻获取**：支持RSS订阅源和NewsAPI等多种新闻来源
+- **多源新闻获取**：支持RSS订阅源和NewsAPI等多种新闻来源（支持中英文源）
 - **智能分类**：按主题、重要性、来源对新闻进行分类
 - **自动总结**：使用模板化摘要生成新闻摘要
+- **中文翻译**：自动将英文新闻翻译为中文（可配置）
 - **邮件推送**：每天自动发送分类汇总的新闻到指定邮箱
 - **定时任务**：通过GitHub Actions实现每天自动运行
 
@@ -69,7 +107,7 @@ python src/main.py
 
 ### 定时任务（GitHub Actions）
 
-系统已配置GitHub Actions工作流，每天自动运行。默认运行时间为每天UTC 0:00（北京时间8:00），可在 `.github/workflows/daily_news.yml` 中修改。
+系统已配置GitHub Actions工作流，每天自动运行。默认运行时间为每天UTC 22:00（北京时间次日6:00），可在 `.github/workflows/daily_news.yml` 中修改。
 
 ## 新闻来源
 
@@ -77,10 +115,15 @@ python src/main.py
 
 ### RSS订阅源
 
+**英文源**：
 - Hacker News RSS
 - Reddit r/MachineLearning
-- 科技媒体RSS（如TechCrunch、The Verge等）
 - ArXiv AI相关论文
+- 科技媒体RSS（如TechCrunch等）
+
+**中文源**：
+- 36氪、爱范儿、极客公园、虎嗅、雷锋网等
+- 更多中文RSS源请查看 [RSS_SOURCES.md](RSS_SOURCES.md)
 
 ### NewsAPI
 

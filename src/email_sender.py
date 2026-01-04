@@ -5,6 +5,7 @@
 
 import smtplib
 import logging
+import hashlib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from typing import Dict, List
@@ -121,6 +122,38 @@ def generate_html_email(news_by_category: Dict, statistics: str = "", translate:
                 color: #7f8c8d;
                 font-size: 12px;
             }}
+            .overview {{
+                background-color: #f8f9fa;
+                border: 2px solid #3498db;
+                border-radius: 8px;
+                padding: 20px;
+                margin: 20px 0;
+            }}
+            .overview-item {{
+                margin: 10px 0;
+                padding: 8px;
+                background-color: white;
+                border-left: 3px solid #3498db;
+                border-radius: 3px;
+            }}
+            .overview-title {{
+                font-weight: bold;
+                color: #2c3e50;
+                margin-bottom: 4px;
+            }}
+            .overview-summary {{
+                color: #555;
+                font-size: 14px;
+                margin-left: 10px;
+            }}
+            .overview-link {{
+                color: #3498db;
+                text-decoration: none;
+                font-size: 13px;
+            }}
+            .overview-link:hover {{
+                text-decoration: underline;
+            }}
         </style>
     </head>
     <body>
@@ -135,6 +168,73 @@ def generate_html_email(news_by_category: Dict, statistics: str = "", translate:
     # 导入翻译函数
     from news_summarizer import summarize_news
     
+    # 收集所有新闻用于概览，并为每个新闻生成唯一锚点ID
+    all_news_for_overview = []
+    news_anchor_map = {}  # 用于存储新闻到锚点ID的映射
+    
+    if 'by_topic' in news_by_category:
+        news_counter = 0
+        for topic, news_list in news_by_category['by_topic'].items():
+            for news in news_list:
+                news_counter += 1
+                # 使用新闻的链接作为唯一标识生成锚点ID
+                link = news.get('link', '')
+                if link:
+                    # 使用链接的哈希值生成简短的锚点ID
+                    link_hash = hashlib.md5(link.encode()).hexdigest()[:8]
+                    anchor_id = f"news-{link_hash}"
+                else:
+                    anchor_id = f"news-{news_counter}"
+                
+                news['_anchor_id'] = anchor_id
+                news_anchor_map[id(news)] = anchor_id
+                all_news_for_overview.append(news)
+    
+    # 生成新闻概览（每个新闻一句话）
+    if all_news_for_overview:
+        html += '<h2>📋 新闻概览</h2>'
+        html += '<div class="overview">'
+        html += '<p style="margin-top: 0; color: #7f8c8d; font-size: 14px;">以下是今日所有AI新闻的快速概览，点击标题可跳转到详细内容：</p>'
+        
+        for idx, news in enumerate(all_news_for_overview, 1):
+            summarized = summarize_news(news, translate=translate)
+            title = summarized.get('title', '无标题')
+            summary = summarized.get('summary', '')
+            
+            # 生成一句话摘要（取摘要的第一句话或前100个字符）
+            one_sentence = summary
+            if len(summary) > 100:
+                # 尝试找到第一个句号
+                first_period = summary.find('。')
+                first_exclamation = summary.find('！')
+                first_question = summary.find('？')
+                
+                end_pos = len(summary)
+                for pos in [first_period, first_exclamation, first_question]:
+                    if pos > 0 and pos < end_pos:
+                        end_pos = pos + 1
+                        break
+                
+                if end_pos < len(summary):
+                    one_sentence = summary[:end_pos]
+                else:
+                    one_sentence = summary[:100] + '...'
+            
+            # 获取锚点ID
+            anchor_id = news.get('_anchor_id', f"news-{idx}")
+            
+            html += f'''
+            <div class="overview-item">
+                <div class="overview-title">
+                    {idx}. <a href="#{anchor_id}" class="overview-link">{title}</a>
+                </div>
+                <div class="overview-summary">{one_sentence}</div>
+            </div>
+            '''
+        
+        html += '</div>'
+        html += '<hr style="margin: 30px 0; border: none; border-top: 2px solid #ecf0f1;">'
+    
     # 按主题展示
     if 'by_topic' in news_by_category:
         html += '<h2>📚 按主题分类</h2>'
@@ -144,8 +244,20 @@ def generate_html_email(news_by_category: Dict, statistics: str = "", translate:
                 # 翻译新闻
                 summarized = summarize_news(news, translate=translate)
                 importance_class = f"importance-{news.get('importance', 'medium').lower()}"
+                
+                # 获取锚点ID（如果已设置，否则生成一个）
+                anchor_id = news.get('_anchor_id')
+                if not anchor_id:
+                    # 如果没有锚点ID，使用链接生成
+                    link = news.get('link', '')
+                    if link:
+                        link_hash = hashlib.md5(link.encode()).hexdigest()[:8]
+                        anchor_id = f"news-{link_hash}"
+                    else:
+                        anchor_id = f"news-{id(news)}"
+                
                 html += f'''
-                <div class="news-item {importance_class}">
+                <div id="{anchor_id}" class="news-item {importance_class}">
                     <div class="news-title">{summarized.get('title', '无标题')}</div>
                     <div class="news-meta">
                         <span class="topic-badge">{summarized.get('topic', '其他')}</span>
