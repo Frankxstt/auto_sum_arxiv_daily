@@ -12,3 +12,6 @@ PyYAML>=6.0.1
 # 日期处理
 python-dateutil>=2.8.2
 
+# 翻译功能
+deep-translator>=1.11.4
+

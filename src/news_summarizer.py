@@ -1,14 +1,22 @@
 """
 新闻总结模块
-使用模板化摘要生成新闻摘要
+使用模板化摘要生成新闻摘要，支持翻译功能
 """
 
 import logging
-from typing import List, Dict
+from typing import List, Dict, Optional
 from datetime import datetime
 from dateutil import parser as date_parser
 
 logger = logging.getLogger(__name__)
+
+# 尝试导入翻译库
+try:
+    from deep_translator import GoogleTranslator
+    TRANSLATION_AVAILABLE = True
+except ImportError:
+    TRANSLATION_AVAILABLE = False
+    logger.warning("deep-translator未安装，翻译功能将不可用。请运行: pip install deep-translator")
 
 
 def parse_date(date_str: str) -> str:
@@ -37,12 +45,40 @@ def parse_date(date_str: str) -> str:
             return "未知日期"
 
 
-def summarize_news(news: Dict) -> Dict:
+def translate_text(text: str, target_lang: str = 'zh') -> str:
+    """
+    翻译文本到目标语言
+    
+    Args:
+        text: 要翻译的文本
+        target_lang: 目标语言代码，'zh'表示中文
+        
+    Returns:
+        翻译后的文本，如果翻译失败则返回原文
+    """
+    if not TRANSLATION_AVAILABLE:
+        return text
+    
+    if not text or len(text.strip()) < 3:
+        return text
+    
+    try:
+        # 检测文本语言，如果是中文则不需要翻译
+        translator = GoogleTranslator(source='auto', target=target_lang)
+        translated = translator.translate(text)
+        return translated if translated else text
+    except Exception as e:
+        logger.warning(f"翻译失败: {str(e)}，返回原文")
+        return text
+
+
+def summarize_news(news: Dict, translate: bool = True) -> Dict:
     """
     生成单条新闻的摘要
     
     Args:
         news: 新闻字典
+        translate: 是否翻译为中文，默认True
         
     Returns:
         包含摘要信息的字典
@@ -62,6 +98,11 @@ def summarize_news(news: Dict) -> Dict:
     if len(summary) > max_summary_length:
         summary = summary[:max_summary_length] + "..."
     
+    # 翻译标题和摘要
+    if translate:
+        title = translate_text(title, 'zh')
+        summary = translate_text(summary, 'zh')
+    
     # 解析日期
     formatted_date = parse_date(published)
     
@@ -77,13 +118,14 @@ def summarize_news(news: Dict) -> Dict:
     }
 
 
-def format_news_summary(news_list: List[Dict], max_items: int = None) -> str:
+def format_news_summary(news_list: List[Dict], max_items: int = None, translate: bool = True) -> str:
     """
     格式化新闻列表为文本摘要
     
     Args:
         news_list: 新闻列表
         max_items: 最大显示条数，None表示显示全部
+        translate: 是否翻译为中文，默认True
         
     Returns:
         格式化后的文本摘要
@@ -96,7 +138,7 @@ def format_news_summary(news_list: List[Dict], max_items: int = None) -> str:
     
     lines = []
     for i, news in enumerate(news_list, 1):
-        summarized = summarize_news(news)
+        summarized = summarize_news(news, translate=translate)
         lines.append(f"{i}. {summarized['title']}")
         lines.append(f"   来源: {summarized['source']} | 日期: {summarized['published']}")
         lines.append(f"   摘要: {summarized['summary']}")
@@ -106,12 +148,13 @@ def format_news_summary(news_list: List[Dict], max_items: int = None) -> str:
     return "\n".join(lines)
 
 
-def format_news_by_category(classified_news: Dict) -> Dict[str, str]:
+def format_news_by_category(classified_news: Dict, translate: bool = True) -> Dict[str, str]:
     """
     按分类格式化新闻摘要
     
     Args:
         classified_news: 分类后的新闻字典
+        translate: 是否翻译为中文，默认True
         
     Returns:
         按分类组织的格式化文本字典
@@ -123,7 +166,7 @@ def format_news_by_category(classified_news: Dict) -> Dict[str, str]:
         topic_texts = []
         for topic, news_list in sorted(classified_news['by_topic'].items()):
             topic_texts.append(f"\n【{topic}】({len(news_list)}条)")
-            topic_texts.append(format_news_summary(news_list))
+            topic_texts.append(format_news_summary(news_list, translate=translate))
         formatted['by_topic'] = "\n".join(topic_texts)
     
     # 按重要性格式化
@@ -133,7 +176,7 @@ def format_news_by_category(classified_news: Dict) -> Dict[str, str]:
             if importance in classified_news['by_importance']:
                 news_list = classified_news['by_importance'][importance]
                 importance_texts.append(f"\n【{importance}重要性】({len(news_list)}条)")
-                importance_texts.append(format_news_summary(news_list))
+                importance_texts.append(format_news_summary(news_list, translate=translate))
         formatted['by_importance'] = "\n".join(importance_texts)
     
     # 按来源格式化
@@ -141,7 +184,7 @@ def format_news_by_category(classified_news: Dict) -> Dict[str, str]:
         source_texts = []
         for source, news_list in sorted(classified_news['by_source'].items()):
             source_texts.append(f"\n【{source}】({len(news_list)}条)")
-            source_texts.append(format_news_summary(news_list, max_items=5))  # 每个来源最多显示5条
+            source_texts.append(format_news_summary(news_list, max_items=5, translate=translate))  # 每个来源最多显示5条
         formatted['by_source'] = "\n".join(source_texts)
     
     return formatted

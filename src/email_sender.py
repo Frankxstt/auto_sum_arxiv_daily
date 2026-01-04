@@ -13,7 +13,7 @@ from datetime import datetime
 logger = logging.getLogger(__name__)
 
 
-def generate_html_email(news_by_category: Dict, statistics: str = "") -> str:
+def generate_html_email(news_by_category: Dict, statistics: str = "", translate: bool = True) -> str:
     """
     生成HTML格式的邮件内容
     
@@ -132,24 +132,29 @@ def generate_html_email(news_by_category: Dict, statistics: str = "") -> str:
     if statistics:
         html += f'<div class="statistics"><pre>{statistics}</pre></div>'
     
+    # 导入翻译函数
+    from news_summarizer import summarize_news
+    
     # 按主题展示
     if 'by_topic' in news_by_category:
         html += '<h2>📚 按主题分类</h2>'
         for topic, news_list in sorted(news_by_category['by_topic'].items()):
             html += f'<h3 style="color: #34495e; margin-top: 20px;">{topic} ({len(news_list)}条)</h3>'
             for news in news_list:
+                # 翻译新闻
+                summarized = summarize_news(news, translate=translate)
                 importance_class = f"importance-{news.get('importance', 'medium').lower()}"
                 html += f'''
                 <div class="news-item {importance_class}">
-                    <div class="news-title">{news.get('title', '无标题')}</div>
+                    <div class="news-title">{summarized.get('title', '无标题')}</div>
                     <div class="news-meta">
-                        <span class="topic-badge">{news.get('topic', '其他')}</span>
-                        来源: {news.get('source', '未知')} | 
-                        日期: {news.get('published', '未知日期')} | 
-                        重要性: {news.get('importance', '中')}
+                        <span class="topic-badge">{summarized.get('topic', '其他')}</span>
+                        来源: {summarized.get('source', '未知')} | 
+                        日期: {summarized.get('published', '未知日期')} | 
+                        重要性: {summarized.get('importance', '中')}
                     </div>
-                    <div class="news-summary">{news.get('summary', '')}</div>
-                    <a href="{news.get('link', '#')}" class="news-link">阅读原文 →</a>
+                    <div class="news-summary">{summarized.get('summary', '')}</div>
+                    <a href="{summarized.get('link', '#')}" class="news-link">阅读原文 →</a>
                 </div>
                 '''
     
@@ -159,16 +164,18 @@ def generate_html_email(news_by_category: Dict, statistics: str = "") -> str:
         if high_news:
             html += '<h2>⭐ 高重要性新闻</h2>'
             for news in high_news:
+                # 翻译新闻
+                summarized = summarize_news(news, translate=translate)
                 html += f'''
                 <div class="news-item importance-high">
-                    <div class="news-title">{news.get('title', '无标题')}</div>
+                    <div class="news-title">{summarized.get('title', '无标题')}</div>
                     <div class="news-meta">
-                        <span class="topic-badge">{news.get('topic', '其他')}</span>
-                        来源: {news.get('source', '未知')} | 
-                        日期: {news.get('published', '未知日期')}
+                        <span class="topic-badge">{summarized.get('topic', '其他')}</span>
+                        来源: {summarized.get('source', '未知')} | 
+                        日期: {summarized.get('published', '未知日期')}
                     </div>
-                    <div class="news-summary">{news.get('summary', '')}</div>
-                    <a href="{news.get('link', '#')}" class="news-link">阅读原文 →</a>
+                    <div class="news-summary">{summarized.get('summary', '')}</div>
+                    <a href="{summarized.get('link', '#')}" class="news-link">阅读原文 →</a>
                 </div>
                 '''
     
@@ -242,7 +249,7 @@ def send_email(config: Dict, subject: str, html_content: str) -> bool:
         return False
 
 
-def send_news_email(config: Dict, classified_news: Dict, statistics: str = "") -> bool:
+def send_news_email(config: Dict, classified_news: Dict, statistics: str = "", translate: bool = True) -> bool:
     """
     发送新闻汇总邮件（便捷函数）
     
@@ -250,6 +257,7 @@ def send_news_email(config: Dict, classified_news: Dict, statistics: str = "") -
         config: 配置字典，包含邮件配置和新闻数据
         classified_news: 分类后的新闻字典
         statistics: 统计信息
+        translate: 是否翻译为中文，默认True
         
     Returns:
         是否发送成功
@@ -263,8 +271,8 @@ def send_news_email(config: Dict, classified_news: Dict, statistics: str = "") -
         'by_importance': classified_news.get('by_importance', {})
     }
     
-    # 生成HTML内容
-    html_content = generate_html_email(news_by_category, statistics)
+    # 生成HTML内容（使用翻译后的新闻）
+    html_content = generate_html_email(news_by_category, statistics, translate=translate)
     
     # 发送邮件
     email_config = {

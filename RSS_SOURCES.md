@@ -34,17 +34,48 @@
 - `https://www.artificialintelligence-news.com/feed/` - AI News
 - `https://venturebeat.com/ai/feed/` - VentureBeat AI
 
+## 中文RSS源
+
+### 科技媒体
+- `https://www.36kr.com/feed` - 36氪（科技新闻）
+- `https://www.ifanr.com/feed` - 爱范儿（科技资讯）
+- `https://www.geekpark.net/rss` - 极客公园（科技媒体）
+- `https://www.huxiu.com/rss/0.xml` - 虎嗅（科技商业）
+- `https://www.leiphone.com/feed` - 雷锋网（AI科技）
+- `https://www.pingwest.com/feed` - PingWest品玩
+- `https://www.techxuexi.com/feed` - 科技讯息
+
+### AI/技术社区
+- `https://www.jiqizhixin.com/rss` - 机器之心（AI专业媒体）
+- `https://www.atyun.com/feed` - 人工智能头条
+- `https://www.ctoutiao.com/feed` - 创头条
+
+### 开发者社区
+- `https://www.oschina.net/news/rss` - 开源中国
+- `https://www.infoq.cn/feed` - InfoQ中文站
+
+**注意**: 某些中文RSS源可能需要验证或可能不稳定，建议测试后使用。
+
 ## 配置示例
 
 在 `config.yaml` 或 GitHub Secrets 的 `RSS_URLS` 中配置（多个URL用逗号分隔）：
 
 ```yaml
+# 英文源 + 中文源混合配置
 rss_urls:
+  # 英文源
   - https://hnrss.org/frontpage
   - https://www.reddit.com/r/MachineLearning/.rss
   - https://rss.arxiv.org/rss/cs.AI
   - https://rss.arxiv.org/rss/cs.LG
   - https://techcrunch.com/feed/
+  
+  # 中文源
+  - https://www.36kr.com/feed
+  - https://www.ifanr.com/feed
+  - https://www.geekpark.net/rss
+  - https://www.huxiu.com/rss/0.xml
+  - https://www.leiphone.com/feed
 ```
 
 或者在GitHub Secrets中：

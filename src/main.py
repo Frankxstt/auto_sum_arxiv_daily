@@ -66,6 +66,9 @@ def load_config_from_env() -> dict:
     Returns:
         配置字典
     """
+    # 翻译配置（默认启用）
+    translation_enabled = os.getenv('TRANSLATION_ENABLED', 'true').lower() == 'true'
+    
     config = {
         'email': {
             'smtp_host': os.getenv('EMAIL_HOST', ''),
@@ -73,6 +76,10 @@ def load_config_from_env() -> dict:
             'email_user': os.getenv('EMAIL_USER', ''),
             'email_password': os.getenv('EMAIL_PASSWORD', ''),
             'email_to': os.getenv('EMAIL_TO', '')
+        },
+        'translation': {
+            'enabled': translation_enabled,
+            'target_language': 'zh'
         },
         'news_sources': {
             'rss_urls': os.getenv('RSS_URLS', '').split(',') if os.getenv('RSS_URLS') else [],
@@ -138,10 +145,13 @@ def main():
         statistics = generate_summary_statistics(classified_news)
         logger.info(f"\n{statistics}")
         
+        # 获取翻译配置
+        translate = config.get('translation', {}).get('enabled', True)
+        
         # 步骤4: 发送邮件
         if not args.no_email:
             logger.info("\n[步骤4] 准备发送邮件...")
-            success = send_news_email(config, classified_news, statistics)
+            success = send_news_email(config, classified_news, statistics, translate=translate)
             
             if success:
                 logger.info("邮件发送成功！")
@@ -151,7 +161,7 @@ def main():
         else:
             logger.info("\n[步骤4] 跳过邮件发送（--no-email选项）")
             # 输出到控制台
-            formatted = format_news_by_category(classified_news)
+            formatted = format_news_by_category(classified_news, translate=translate)
             print("\n" + "=" * 60)
             print(statistics)
             print("\n" + formatted.get('by_topic', ''))

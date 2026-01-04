@@ -9,16 +9,28 @@ email:
   email_password: your_app_password  # 邮箱密码或应用专用密码（Gmail需要使用应用专用密码）
   email_to: recipient@example.com    # 接收邮件的邮箱地址
 
+# 翻译配置
+translation:
+  enabled: true  # 是否启用翻译功能，将英文新闻翻译为中文
+  target_language: zh  # 目标语言，'zh'表示中文
+
 # 新闻源配置
 news_sources:
-  # RSS订阅源列表
+  # RSS订阅源列表（支持中英文源）
   rss_urls:
+    # 英文源
     - https://hnrss.org/frontpage  # Hacker News
     - https://www.reddit.com/r/MachineLearning/.rss  # Reddit Machine Learning
     - https://rss.arxiv.org/rss/cs.AI  # ArXiv AI papers RSS feed
+    - https://techcrunch.com/feed/  # TechCrunch
+    
+    # 中文源
+    - https://www.36kr.com/feed  # 36氪
+    - https://www.ifanr.com/feed  # 爱范儿
+    - https://www.geekpark.net/rss  # 极客公园
+    - https://www.huxiu.com/rss/0.xml  # 虎嗅
+    - https://www.leiphone.com/feed  # 雷锋网
     # 可以添加更多RSS源
-    # - https://feeds.feedburner.com/oreilly/radar  # O'Reilly Radar
-    # - https://techcrunch.com/feed/  # TechCrunch
   
   # NewsAPI配置（可选）
   newsapi:
