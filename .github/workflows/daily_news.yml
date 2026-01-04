@@ -2,10 +2,10 @@ name: AI新闻每日汇总
 
 on:
   schedule:
-    # 每天UTC 0:00运行（北京时间8:00）
+    # 每天UTC 22:00运行（北京时间次日6:00）
     # 可以修改cron表达式来改变运行时间
     # 格式: 分钟 小时 日 月 星期
-    - cron: '0 0 * * *'
+    - cron: '0 22 * * *'
   workflow_dispatch:  # 允许手动触发
 
 jobs:
