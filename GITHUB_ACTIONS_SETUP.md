@@ -67,14 +67,26 @@
 ##### 6. RSS_URLS
 - **Name**: `RSS_URLS`
 - **Value**: RSS订阅源URL列表，多个URL用逗号分隔
-  - 例如: `https://hnrss.org/frontpage,https://www.reddit.com/r/MachineLearning/.rss`
+  - **英文源示例**: `https://hnrss.org/frontpage,https://www.reddit.com/r/MachineLearning/.rss,https://rss.arxiv.org/rss/cs.AI`
+  - **包含中文源示例**: `https://hnrss.org/frontpage,https://rss.arxiv.org/rss/cs.AI,https://www.36kr.com/feed,https://www.ifanr.com/feed`
   - 如果不设置，将使用代码中的默认RSS源
+  - **推荐配置**（英文+中文混合）:
+    ```
+    https://hnrss.org/frontpage,https://www.reddit.com/r/MachineLearning/.rss,https://rss.arxiv.org/rss/cs.AI,https://rss.arxiv.org/rss/cs.LG,https://www.36kr.com/feed,https://www.ifanr.com/feed,https://www.geekpark.net/rss
+    ```
 
 ##### 7. NEWS_API_KEY
 - **Name**: `NEWS_API_KEY`
 - **Value**: NewsAPI密钥（可选）
   - 如果不需要使用NewsAPI，可以不设置此密钥
   - 获取方法: 访问 [NewsAPI官网](https://newsapi.org/) 注册并获取免费API密钥
+
+##### 8. TRANSLATION_ENABLED（新增，可选）
+- **Name**: `TRANSLATION_ENABLED`
+- **Value**: 是否启用翻译功能，将英文新闻翻译为中文
+  - `true` - 启用翻译（默认值，如果不设置则启用）
+  - `false` - 禁用翻译
+  - **注意**: 中文RSS源的内容不需要翻译，系统会自动识别
 
 ### 步骤3: 验证配置
 
@@ -86,8 +98,9 @@
 ✅ EMAIL_USER
 ✅ EMAIL_PASSWORD
 ✅ EMAIL_TO
-✅ RSS_URLS (可选)
+✅ RSS_URLS (可选，推荐配置)
 ✅ NEWS_API_KEY (可选)
+✅ TRANSLATION_ENABLED (可选，默认启用)
 ```
 
 ### 步骤4: 测试工作流

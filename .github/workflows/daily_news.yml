@@ -35,6 +35,7 @@ jobs:
         EMAIL_TO: ${{ secrets.EMAIL_TO }}
         RSS_URLS: ${{ secrets.RSS_URLS }}
         NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
+        TRANSLATION_ENABLED: ${{ secrets.TRANSLATION_ENABLED }}
       run: |
         python src/main.py --env
     
