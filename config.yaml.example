@@ -15,7 +15,7 @@ news_sources:
   rss_urls:
     - https://hnrss.org/frontpage  # Hacker News
     - https://www.reddit.com/r/MachineLearning/.rss  # Reddit Machine Learning
-    - https://arxiv.org/list/cs.AI/recent?show=100  # ArXiv AI papers (需要转换为RSS)
+    - https://rss.arxiv.org/rss/cs.AI  # ArXiv AI papers RSS feed
     # 可以添加更多RSS源
     # - https://feeds.feedburner.com/oreilly/radar  # O'Reilly Radar
     # - https://techcrunch.com/feed/  # TechCrunch

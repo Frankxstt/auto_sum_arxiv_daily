@@ -24,13 +24,36 @@ def fetch_from_rss(urls: List[str]) -> List[Dict]:
     """
     all_news = []
     
+    # 设置User-Agent，某些RSS源需要
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (compatible; AI News Aggregator/1.0; +https://github.com/Frankxstt/auto_sum_arxiv_daily)'
+    }
+    
     for url in urls:
         try:
             logger.info(f"正在获取RSS源: {url}")
-            feed = feedparser.parse(url)
+            
+            # 对于需要HTTP请求的URL，先获取内容再解析
+            if url.startswith('http'):
+                try:
+                    response = requests.get(url, headers=headers, timeout=30)
+                    response.raise_for_status()
+                    feed = feedparser.parse(response.content)
+                except requests.exceptions.RequestException as e:
+                    logger.error(f"无法获取RSS源 {url}: {str(e)}")
+                    continue
+            else:
+                feed = feedparser.parse(url)
             
             if feed.bozo and feed.bozo_exception:
                 logger.warning(f"RSS源解析错误 {url}: {feed.bozo_exception}")
+                # 检查是否是常见的错误URL格式
+                if 'list' in url and 'arxiv.org' in url:
+                    logger.warning(f"提示: {url} 不是RSS feed URL。ArXiv的RSS feed应该是: https://rss.arxiv.org/rss/cs.AI")
+                continue
+            
+            if not feed.entries:
+                logger.warning(f"RSS源 {url} 没有返回任何条目")
                 continue
             
             for entry in feed.entries:
