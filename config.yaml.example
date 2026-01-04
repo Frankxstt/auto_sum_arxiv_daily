@@ -1,0 +1,92 @@
+# AI新闻自动汇总系统配置文件
+# 复制此文件为 config.yaml 并填写实际配置
+
+# 邮件配置
+email:
+  smtp_host: smtp.gmail.com  # SMTP服务器地址
+  smtp_port: 587              # SMTP端口（Gmail使用587，QQ邮箱使用587或465）
+  email_user: your_email@gmail.com  # 发送邮件的邮箱账号
+  email_password: your_app_password  # 邮箱密码或应用专用密码（Gmail需要使用应用专用密码）
+  email_to: recipient@example.com    # 接收邮件的邮箱地址
+
+# 新闻源配置
+news_sources:
+  # RSS订阅源列表
+  rss_urls:
+    - https://hnrss.org/frontpage  # Hacker News
+    - https://www.reddit.com/r/MachineLearning/.rss  # Reddit Machine Learning
+    - https://arxiv.org/list/cs.AI/recent?show=100  # ArXiv AI papers (需要转换为RSS)
+    # 可以添加更多RSS源
+    # - https://feeds.feedburner.com/oreilly/radar  # O'Reilly Radar
+    # - https://techcrunch.com/feed/  # TechCrunch
+  
+  # NewsAPI配置（可选）
+  newsapi:
+    enabled: false  # 是否启用NewsAPI
+    api_key: your_newsapi_key_here  # NewsAPI密钥，从 https://newsapi.org/ 获取
+    keywords:  # 搜索关键词
+      - artificial intelligence
+      - machine learning
+      - deep learning
+      - AI
+    days_back: 1  # 获取多少天前的新闻
+
+# AI相关关键词（用于过滤新闻）
+ai_keywords:
+  - artificial intelligence
+  - AI
+  - machine learning
+  - ML
+  - deep learning
+  - neural network
+  - NLP
+  - natural language processing
+  - computer vision
+  - CV
+  - reinforcement learning
+  - RL
+  - GPT
+  - BERT
+  - transformer
+  - LLM
+  - large language model
+  - chatbot
+  - chatgpt
+  - claude
+  - 人工智能
+  - 机器学习
+  - 深度学习
+  - 神经网络
+  - 自然语言处理
+  - 计算机视觉
+
+# 分类配置（可选，使用默认配置时可省略）
+classification:
+  # 主题关键词（可选，使用默认配置时可省略）
+  topic_keywords: {}
+  
+  # 高重要性关键词（可选）
+  high_importance_keywords:
+    - breakthrough
+    - 重大突破
+    - 首次
+    - first
+    - revolutionary
+    - 革命性
+    - game-changing
+    - milestone
+    - 里程碑
+  
+  # 权威来源（可选）
+  authoritative_sources:
+    - nature
+    - science
+    - arxiv
+    - openai
+    - deepmind
+    - google ai
+    - microsoft research
+    - stanford
+    - mit
+    - berkeley
+
