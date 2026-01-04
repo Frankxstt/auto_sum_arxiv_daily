@@ -12,7 +12,7 @@ email:
 # 翻译配置
 translation:
   enabled: true  # 是否启用翻译功能，将英文新闻翻译为中文
-  target_language: zh  # 目标语言，'zh'表示中文
+  target_language: zh-CN  # 目标语言，'zh-CN'表示简体中文，'zh-TW'表示繁体中文
 
 # 新闻源配置
 news_sources:

@@ -45,13 +45,13 @@ def parse_date(date_str: str) -> str:
             return "未知日期"
 
 
-def translate_text(text: str, target_lang: str = 'zh') -> str:
+def translate_text(text: str, target_lang: str = 'zh-CN') -> str:
     """
     翻译文本到目标语言
     
     Args:
         text: 要翻译的文本
-        target_lang: 目标语言代码，'zh'表示中文
+        target_lang: 目标语言代码，'zh-CN'表示简体中文，'zh-TW'表示繁体中文
         
     Returns:
         翻译后的文本，如果翻译失败则返回原文
@@ -61,6 +61,10 @@ def translate_text(text: str, target_lang: str = 'zh') -> str:
     
     if not text or len(text.strip()) < 3:
         return text
+    
+    # 将简写的'zh'转换为'zh-CN'
+    if target_lang == 'zh':
+        target_lang = 'zh-CN'
     
     try:
         # 检测文本语言，如果是中文则不需要翻译
@@ -100,8 +104,8 @@ def summarize_news(news: Dict, translate: bool = True) -> Dict:
     
     # 翻译标题和摘要
     if translate:
-        title = translate_text(title, 'zh')
-        summary = translate_text(summary, 'zh')
+        title = translate_text(title, 'zh-CN')
+        summary = translate_text(summary, 'zh-CN')
     
     # 解析日期
     formatted_date = parse_date(published)

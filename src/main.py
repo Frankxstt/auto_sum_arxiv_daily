@@ -79,7 +79,7 @@ def load_config_from_env() -> dict:
         },
         'translation': {
             'enabled': translation_enabled,
-            'target_language': 'zh'
+            'target_language': 'zh-CN'
         },
         'news_sources': {
             'rss_urls': os.getenv('RSS_URLS', '').split(',') if os.getenv('RSS_URLS') else [],
